@@ -41,13 +41,14 @@ class AbstractMol(ABC):
     @property
     @abstractmethod
     def symbols(self) -> list[str]:
-        """List of atom symbols"""
+        """List of atomic symbols"""
         pass
 
     @property
     @abstractmethod
     def coords(self) -> np.ndarray:
         """Cartesian coordinates"""
+        pass
 
     @coords.setter
     @abstractmethod
