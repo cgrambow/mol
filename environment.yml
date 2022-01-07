@@ -1,0 +1,8 @@
+name: mol
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.9
+  - numpy
+  - openbabel>=3.0
+  - rdkit>=2021.09.1
