@@ -6,10 +6,13 @@ from typing import Any, Union
 
 import numpy as np
 from rdkit import Chem
-from rdkit.Chem import AllChem
+from rdkit.Chem import AllChem, rdFreeSASA
 from rdkit.Chem.PropertyMol import PropertyMol
 
 from .base import AbstractMol
+from ..units import Quantity, units
+
+PERIODIC_TABLE = Chem.GetPeriodicTable()
 
 # Dictionary of RDKit functions for converting molecule to other formats
 MOL_TO_STRING_CONVERTERS: dict[str, Callable[[Chem.Mol, ...], str]] = {
@@ -321,3 +324,24 @@ class RDKitMol(PropertyMol, AbstractMol, metaclass=_RDKitMolMeta):
         smi = self.to('smi', isomericSmiles=False)
         mol = Chem.MolFromSmiles(smi)
         self.__init__(mol)
+
+    def compute_sasa(self, probe_radius: float = 1.4) -> Quantity:
+        """
+        Compute solvent accessible surface area.
+
+        Args:
+            probe_radius: Probe radius in Angstrom (0 corresponds to the vdW surface).
+
+        Returns:
+            Solvent accessible surface area.
+        """
+        if self.GetNumConformers() == 0:
+            raise Exception('Molecule does not have 3D geometry')
+
+        radii = [PERIODIC_TABLE.GetRvdw(atom.GetAtomicNum()) for atom in self]
+
+        opts = rdFreeSASA.SASAOpts()
+        opts.probeRadius = probe_radius
+
+        sasa = rdFreeSASA.CalcSASA(self, radii, opts=opts)
+        return sasa * units.angstrom ** 2

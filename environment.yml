@@ -5,4 +5,5 @@ dependencies:
   - python>=3.9
   - numpy
   - openbabel>=3.0
+  - pint
   - rdkit>=2021.09.1
